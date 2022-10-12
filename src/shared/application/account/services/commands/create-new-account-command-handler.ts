@@ -1,58 +1,37 @@
-import {Command} from "ic-command-bus/dist/command-bus/command";
 import {CommandHandler} from "ic-command-bus/dist/command-bus/command-handler";
-import {AuthDto} from "../../../../domain/auth/auth-dto";
-import {Gender} from "../../../../domain/person/gender";
+import {Account} from "../../../../domain/account/account";
+import {Person} from "../../../../domain/person/person";
+import {CreateNewAccountCommand} from "./create-new-account-command";
+import {PersonRepository} from "../../../../domain/person/person-repository";
+import {AuthService} from "../../../../domain/auth/auth-service";
+import {AccountRepository} from "../../../../domain/account/account-repository";
 
-export class CreateNewAccountCommand extends Command {
+export class CreateNewAccountCommandHandler implements CommandHandler {
   constructor(
-    private _firstName: string,
-    private _secondName: string|null,
-    private _middleName: string,
-    private _lastName: string|null,
-    private _birthDate: Date | null,
-    private _gender: Gender | null,
-    private _auth: AuthDto
+    private accountRepository: AccountRepository,
+    private personRepository: PersonRepository,
+    private authService: AuthService
   ) {
-    super();
   }
 
-  firstName(): string {
-    return this._firstName;
-  }
+  async handle(command: CreateNewAccountCommand): Promise<Account> {
+    let user = await this.authService.register(command.auth());
 
-  secondName(): string | null {
-    return this._secondName;
-  }
+    let person = await this.personRepository.create(
+      Person.create(
+        command.firstName(),
+        command.secondName(),
+        command.middleName(),
+        command.lastName(),
+        null,
+        null,
+        command.auth().email(),
+        user
+      )
+    );
 
-  middleName(): string {
-    return this._middleName;
-  }
+    // TODO: crear un evento para notificaciones (email, push notification, etc)
 
-  lastName(): string | null {
-    return this._lastName;
-  }
-
-  auth(): AuthDto {
-    return this._auth;
-  }
-
-  birthDate(): Date | null {
-    return this._birthDate;
-  }
-
-  gender(): Gender | null {
-    return this._gender;
-  }
-
-  auditLog(): string {
-    return "";
-  }
-
-  auditable(): boolean {
-    return false;
-  }
-
-  handler(): CommandHandler {
-    return undefined;
+    return await this.accountRepository.create(Account.create(person))
   }
 }

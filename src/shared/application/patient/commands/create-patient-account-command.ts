@@ -1,11 +1,10 @@
 import {Command} from "ic-command-bus/dist/command-bus/command";
-import {Organization} from "../../../../domain/organization/organization";
-import {Patient} from "../../../../domain/patient/patient";
+import {Organization} from "../../../domain/organization/organization";
+import {Patient} from "../../../domain/patient/patient";
 import {CommandHandler} from "ic-command-bus/dist/command-bus/command-handler";
 import {CreatePatientAccountCommandHandler} from "./create-patient-account-command-handler";
 import {App} from "ic-command-bus/dist/dependency-injection/app";
-import {PatientRepository} from "../../../../domain/patient/patient-repository";
-import {OrganizationRepository} from "../../../../domain/organization/organization-repository";
+import {PatientRepository} from "../../../domain/patient/patient-repository";
 
 export class CreatePatientAccountCommand implements Command {
   constructor(
@@ -30,8 +29,7 @@ export class CreatePatientAccountCommand implements Command {
 
   handler(): CommandHandler {
     return new CreatePatientAccountCommandHandler(
-      App.instance().make<PatientRepository>('PatientRepository'),
-      App.instance().make<OrganizationRepository>('OrganizationRepository'),
+      App.instance().make<PatientRepository>('PatientRepository')
     );
   }
 }

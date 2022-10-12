@@ -1,17 +1,20 @@
 import {Gender} from "./gender";
 import moment from "moment";
+import {User} from "../user/user";
 
 export class Person {
   private _address: string | null = null;
+
   private constructor(
-    private _personId: string|null,
+    private _personId: string | null,
     private _firstName: string,
     private _secondName: string | null,
     private _middleName: string,
     private _lastName: string | null,
     private _birthDate: Date | null,
     private _gender: Gender | null,
-    private _userId: string | null,
+    private _email: string | null,
+    private _user: User | null,
   ) {
   }
 
@@ -22,7 +25,8 @@ export class Person {
     lastName: string | null,
     birthDate: Date | null,
     gender: Gender | null,
-    userId: string | null,
+    email: string | null,
+    user: User | null,
   ): Person {
     return new Person(
       null,
@@ -32,7 +36,8 @@ export class Person {
       lastName,
       birthDate,
       gender,
-      userId
+      email,
+      user
     );
   }
 
@@ -44,7 +49,8 @@ export class Person {
     lastName: string | null,
     birthDate: Date | null,
     gender: Gender | null,
-    userId: string | null,
+    email: string | null,
+    user: User | null,
   ): Person {
     return new Person(
       id,
@@ -54,7 +60,8 @@ export class Person {
       lastName,
       birthDate,
       gender,
-      userId
+      email,
+      user
     );
   }
 
@@ -90,8 +97,12 @@ export class Person {
     return this._gender;
   }
 
-  userId(): string | null {
-    return this._userId;
+  user(): User | null {
+    return this._user;
+  }
+
+  email(): string|null {
+    return this._email;
   }
 
   public addAddress(address: string): void {

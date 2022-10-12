@@ -1,56 +1,39 @@
-import {Command} from "ic-command-bus/dist/command-bus/command";
 import {CommandHandler} from "ic-command-bus/dist/command-bus/command-handler";
+import {CreateNewConsultCommand} from "./create-new-consult-command";
+import {ConsultRepository} from "../../../domain/consult/consult-repository";
+import {ConsultType} from "../../../domain/consult/consult-type";
+import {GeneralConsult} from "../../../domain/consult/general-consult";
 import {Consult} from "../../../domain/consult/consult";
-import {Doctor} from "../../../domain/doctor/doctor";
-import {Patient} from "../../../domain/patient/patient";
-import {Organization} from "../../../domain/organization/organization";
+import {AppointmentRepository} from "../../../domain/appointment/appointment-repository";
 
-export class CreateNewConsultCommand extends Command {
+export class CreateNewConsultCommandHandler implements CommandHandler {
   constructor(
-    private _organization: Organization,
-    private _consult: Consult,
-    private _doctor: Doctor,
-    private _patient: Patient,
-    private _date: Date,
-    private _time: number
+    private consultRepository: ConsultRepository,
+    private appointmentRepository: AppointmentRepository
   ) {
-    super();
   }
 
-  organization(): Organization {
-    return this._organization;
-  }
+  public async handle(command: CreateNewConsultCommand) {
+    let appointment = await this.appointmentRepository.findById(command.appointment().appointmentId());
+    if (appointment === null) {
+      throw new Error("Appointment not found");
+    }
 
-  consult(): Consult {
-    return this._consult;
-  }
+    let consult: Consult|null = null;
 
-  doctor(): Doctor {
-    return this._doctor;
-  }
+    switch (command.appointment().appointmentType()) {
+      case ConsultType.GENERAL:
+        consult = GeneralConsult.create(
+          appointment.patient(),
+          appointment.doctor()
+        );
+        break;
+    }
 
-  patient(): Patient {
-    return this._patient;
-  }
+    if (consult === null) {
+      throw new Error("Consult type is not valid");
+    }
 
-  time(): number {
-    return this._time;
+    return await this.consultRepository.create(consult)
   }
-
-  date(): Date {
-    return this._date;
-  }
-
-  auditLog(): string {
-    return "";
-  }
-
-  auditable(): boolean {
-    return false;
-  }
-
-  handler(): CommandHandler {
-    return undefined;
-  }
-
 }

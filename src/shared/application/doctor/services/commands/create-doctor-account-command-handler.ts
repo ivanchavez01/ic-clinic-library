@@ -1,19 +1,29 @@
-import {CommandHandler} from "ic-command-bus/dist/command-bus/command-handler";
-import {PatientRepository} from "../../../../domain/patient/patient-repository";
-import {CreatePatientAccountCommand} from "./create-patient-account-command";
-import {AccountRepository} from "../../../../domain/account/account-repository";
+import {CommandHandler} from "ic-command-bus/dist/command-bus/command-handler"
 import {Account} from "../../../../domain/account/account";
+import {CreateDoctorAccountCommand} from "./create-doctor-account-command";
+import {DoctorRepository} from "../../../../domain/doctor/doctor-repository";
+import {CommandProcessor} from "ic-command-bus/dist/command-bus/command-processor";
+import {CreateNewAccountCommand} from "../../../account/services/commands/create-new-account-command";
 
-export class CreatePatientAccountCommandHandler implements CommandHandler {
+export class CreateDoctorAccountCommandHandler implements CommandHandler {
   constructor(
-    private patientRepository: PatientRepository,
-    private accountRepository: AccountRepository
+    private doctorRepository: DoctorRepository
   ) {
   }
 
-  public async handle(command: CreatePatientAccountCommand): Promise<Account> {
-    let patient = await this.patientRepository.create(command.patient())
-    return await this.accountRepository.create(Account.create(patient.person()))
+  public async handle(command: CreateDoctorAccountCommand): Promise<Account> {
+    let doctor = await this.doctorRepository.create(command.doctor())
+    return await CommandProcessor.execute<Account>(
+      new CreateNewAccountCommand(
+        doctor.person().firstName(),
+        doctor.person().secondName(),
+        doctor.person().middleName(),
+        doctor.person().lastName(),
+        doctor.person().birthDate(),
+        doctor.person().gender(),
+        command.auth()
+      )
+    );
   }
 }
 

@@ -1,17 +1,14 @@
-import {Command} from "ic-command-bus/dist/command-bus/command";
 import {CommandHandler} from "ic-command-bus/dist/command-bus/command-handler";
+import {ApplyNewChargeCommand} from "./apply-new-charge-command";
+import {TransactionRepository} from "../../../../domain/transaction/transaction-repository";
+import {Transaction} from "../../../../domain/transaction/Transaction";
 
-export class ApplyNewCharge extends Command {
-  auditLog(): string {
-    return "";
+export class ApplyNewChargeCommandHandler implements CommandHandler {
+  constructor(
+    private transactionRepository: TransactionRepository
+  ) {
   }
-
-  auditable(): boolean {
-    return false;
+  handle(command: ApplyNewChargeCommand): Promise<Transaction> {
+    return this.transactionRepository.create(command.charge())
   }
-
-  handler(): CommandHandler {
-    return undefined;
-  }
-
 }

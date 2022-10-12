@@ -1,24 +1,29 @@
 import {Command} from "ic-command-bus/dist/command-bus/command";
 import {Organization} from "../../../../domain/organization/organization";
-import {Patient} from "../../../../domain/patient/patient";
 import {CommandHandler} from "ic-command-bus/dist/command-bus/command-handler";
-import {CreatePatientAccountCommandHandler} from "./create-patient-account-command-handler";
 import {App} from "ic-command-bus/dist/dependency-injection/app";
-import {PatientRepository} from "../../../../domain/patient/patient-repository";
-import {OrganizationRepository} from "../../../../domain/organization/organization-repository";
+import {CreateDoctorAccountCommandHandler} from "./create-doctor-account-command-handler";
+import {Doctor} from "../../../../domain/doctor/doctor";
+import {DoctorRepository} from "../../../../domain/doctor/doctor-repository";
+import {AuthDto} from "../../../../domain/auth/auth-dto";
 
-export class CreatePatientAccountCommand implements Command {
+export class CreateDoctorAccountCommand implements Command {
   constructor(
     private _organization: Organization,
-    private _patient: Patient
+    private _doctor: Doctor,
+    private _auth: AuthDto
   ) {
   }
   organization(): Organization {
     return this._organization;
   }
 
-  patient(): Patient {
-    return this._patient;
+  doctor(): Doctor {
+    return this._doctor;
+  }
+
+  auth(): AuthDto {
+    return this._auth;
   }
 
   auditLog(): string {
@@ -29,9 +34,8 @@ export class CreatePatientAccountCommand implements Command {
   }
 
   handler(): CommandHandler {
-    return new CreatePatientAccountCommandHandler(
-      App.instance().make<PatientRepository>('PatientRepository'),
-      App.instance().make<OrganizationRepository>('OrganizationRepository'),
+    return new CreateDoctorAccountCommandHandler(
+      App.instance().make<DoctorRepository>('DoctorRepository')
     );
   }
 }
